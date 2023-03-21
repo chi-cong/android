@@ -4,6 +4,7 @@
     android:layout_height="wrap_content"
     android:id="@+id/toolbar"
     android:background="@color/colorPrimaryDark"
+    android:layout_marginBottom="?attr/actionBarSize"
     >
 
 </androidx.appcompat.widget.Toolbar >
