@@ -1,9 +1,14 @@
 package com.project.chat_app;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.FragmentPagerAdapter;
-import androidx.viewpager.widget.ViewPager;
+import androidx.fragment.app.FragmentManager;
+import androidx.lifecycle.LifecycleObserver;
+import androidx.viewpager2.widget.ViewPager2;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.viewpager2.adapter.FragmentStateAdapter;
+import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Lifecycle;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -68,7 +73,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         final TabLayout tabLayout = findViewById(R.id.tab_layout);
-        final ViewPager viewPager = findViewById(R.id.view_pager);
+        final ViewPager2 viewPager = findViewById(R.id.view_pager);
 
 
         reference = FirebaseDatabase.getInstance().getReference("Chats");
@@ -120,7 +125,6 @@ public class MainActivity extends AppCompatActivity {
 
             case  R.id.logout:
                 FirebaseAuth.getInstance().signOut();
-                // change this code beacuse your app will crash
                 startActivity(new Intent(MainActivity.this, StartActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
                 return true;
         }
@@ -128,40 +132,63 @@ public class MainActivity extends AppCompatActivity {
         return false;
     }
 
-//    class ViewPagerAdapter extends FragmentPagerAdapter {
-//
-//        private ArrayList<Fragment> fragments;
-//        private ArrayList<String> titles;
-//
-//        ViewPagerAdapter(FragmentManager fm){
-//            super(fm);
-//            this.fragments = new ArrayList<>();
-//            this.titles = new ArrayList<>();
-//        }
-//
-//        @Override
-//        public Fragment getItem(int position) {
-//            return fragments.get(position);
-//        }
-//
-//        @Override
-//        public int getCount() {
-//            return fragments.size();
-//        }
-//
-//        public void addFragment(Fragment fragment, String title){
-//            fragments.add(fragment);
-//            titles.add(title);
-//        }
-//
-//        // Ctrl + O
-//
-//        @Nullable
-//        @Override
-//        public CharSequence getPageTitle(int position) {
-//            return titles.get(position);
-//        }
-//    }
+    class ViewPagerAdapter extends FragmentStateAdapter {
+
+        private ArrayList<Fragment> fragments;
+        private ArrayList<String> titles;
+
+        ViewPagerAdapter(FragmentManager fm){
+            super(fm, new Lifecycle() {
+                /* ko can quan tam */
+                @Override
+                public void addObserver(@NonNull LifecycleObserver observer) {
+
+                }
+
+                @Override
+                public void removeObserver(@NonNull LifecycleObserver observer) {
+
+                }
+
+                @NonNull
+                @Override
+                public State getCurrentState() {
+                    return null;
+                }
+            });
+            this.fragments = new ArrayList<>();
+            this.titles = new ArrayList<>();
+        }
+        public Fragment getItem(int position) {
+            return fragments.get(position);
+        }
+        public int getCount() {
+            return fragments.size();
+        }
+
+        public void addFragment(Fragment fragment, String title){
+            fragments.add(fragment);
+            titles.add(title);
+        }
+
+        // Ctrl + O
+
+        @Nullable
+        public CharSequence getPageTitle(int position) {
+            return titles.get(position);
+        }
+
+        @NonNull
+        @Override
+        public Fragment createFragment(int position) {
+            return null;
+        }
+
+        @Override
+        public int getItemCount() {
+            return 0;
+        }
+    }
 
     private void status(String status){
         reference = FirebaseDatabase.getInstance().getReference("Users").child(firebaseUser.getUid());
