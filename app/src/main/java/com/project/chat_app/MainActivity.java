@@ -1,14 +1,13 @@
 package com.project.chat_app;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
-import androidx.lifecycle.LifecycleObserver;
 import androidx.viewpager2.widget.ViewPager2;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Lifecycle;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -16,6 +15,9 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
 
+import com.google.android.material.tabs.TabLayoutMediator;
+import com.project.chat_app.fragments.ChatsFragment;
+import com.project.chat_app.fragments.UsersFragment;
 import com.project.chat_app.model.User;
 
 import com.bumptech.glide.Glide;
@@ -37,6 +39,9 @@ public class MainActivity extends AppCompatActivity {
 
     CircleImageView profile_image;
     TextView username;
+    ViewPager2 viewPager;
+    TabLayout tabLayout;
+    FragmentStateAdapter viewPagerAdapter;
 
     FirebaseUser firebaseUser;
     DatabaseReference reference;
@@ -72,45 +77,18 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        final TabLayout tabLayout = findViewById(R.id.tab_layout);
-        final ViewPager2 viewPager = findViewById(R.id.view_pager);
+        tabLayout = findViewById(R.id.tab_layout);
+        viewPager = findViewById(R.id.view_pager);
 
-
-        reference = FirebaseDatabase.getInstance().getReference("Chats");
-//        reference.addValueEventListener(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-//                ViewPagerAdapter viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
-//                int unread = 0;
-//                for (DataSnapshot snapshot : dataSnapshot.getChildren()){
-//                    Chat chat = snapshot.getValue(Chat.class);
-//                    if (chat.getReceiver().equals(firebaseUser.getUid()) && !chat.isIsseen()){
-//                        unread++;
-//                    }
-//                }
-//
-//                if (unread == 0){
-//                    viewPagerAdapter.addFragment(new ChatsFragment(), "Chats");
-//                } else {
-//                    viewPagerAdapter.addFragment(new ChatsFragment(), "("+unread+") Chats");
-//                }
-//
-//                viewPagerAdapter.addFragment(new UsersFragment(), "Users");
-//                viewPagerAdapter.addFragment(new ProfileFragment(), "Profile");
-//
-//                viewPager.setAdapter(viewPagerAdapter);
-//
-//                tabLayout.setupWithViewPager(viewPager);
-//
-//            }
-//
-//            @Override
-//            public void onCancelled(@NonNull DatabaseError databaseError) {
-//
-//            }
-//        });
-
-
+        ViewPagerAdapter viewPagerAdapter = new ViewPagerAdapter(MainActivity.this);
+        viewPagerAdapter.addFragment(new UsersFragment(), "Users");
+        viewPagerAdapter.addFragment(new ChatsFragment(), "Chats");
+//        cac fragment duoc viewPagerAdapter return trong createFragment se tro thanh cac trang luot cuar viewPager
+        viewPager.setAdapter(viewPagerAdapter);
+//        cai dat tieu de tuong ung voi tung trang cua viewpager
+        new TabLayoutMediator(tabLayout, viewPager, (tab, position) -> {
+            tab.setText(viewPagerAdapter.getTitle(position));
+        }).attach();
     }
 
     @Override
@@ -132,82 +110,40 @@ public class MainActivity extends AppCompatActivity {
         return false;
     }
 
+    //    adapter, su dung fragment de dieu chinh cac hanh vi lien quan den fragment
     class ViewPagerAdapter extends FragmentStateAdapter {
-
+//      2 mang chua fragment va ten cuar fragment
         private ArrayList<Fragment> fragments;
         private ArrayList<String> titles;
 
-        ViewPagerAdapter(FragmentManager fm){
-            super(fm, new Lifecycle() {
-                /* ko can quan tam */
-                @Override
-                public void addObserver(@NonNull LifecycleObserver observer) {
+        public String worked = "false";
 
-                }
-
-                @Override
-                public void removeObserver(@NonNull LifecycleObserver observer) {
-
-                }
-
-                @NonNull
-                @Override
-                public State getCurrentState() {
-                    return null;
-                }
-            });
+        ViewPagerAdapter(FragmentActivity fa){
+            super(fa);
             this.fragments = new ArrayList<>();
             this.titles = new ArrayList<>();
-        }
-        public Fragment getItem(int position) {
-            return fragments.get(position);
-        }
-        public int getCount() {
-            return fragments.size();
         }
 
         public void addFragment(Fragment fragment, String title){
             fragments.add(fragment);
             titles.add(title);
         }
-
-        // Ctrl + O
-
-        @Nullable
-        public CharSequence getPageTitle(int position) {
-            return titles.get(position);
+        public String getTitle(int position){
+            return titles.get(position) ;
         }
 
-        @NonNull
         @Override
         public Fragment createFragment(int position) {
-            return null;
+            return fragments.get(position);
         }
 
         @Override
         public int getItemCount() {
-            return 0;
+//          tra ve so luong fragment trong adapter
+            return 2;
         }
     }
 
-    private void status(String status){
-        reference = FirebaseDatabase.getInstance().getReference("Users").child(firebaseUser.getUid());
 
-        HashMap<String, Object> hashMap = new HashMap<>();
-        hashMap.put("status", status);
 
-        reference.updateChildren(hashMap);
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        status("online");
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        status("offline");
-    }
 }
