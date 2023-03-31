@@ -41,7 +41,6 @@ public class MainActivity extends AppCompatActivity {
     TextView username;
     ViewPager2 viewPager;
     TabLayout tabLayout;
-    FragmentStateAdapter viewPagerAdapter;
 
     FirebaseUser firebaseUser;
     DatabaseReference reference;
