@@ -20,7 +20,6 @@ import com.project.chat_app.fragments.ChatsFragment;
 import com.project.chat_app.fragments.UsersFragment;
 import com.project.chat_app.model.User;
 
-import com.bumptech.glide.Glide;
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -64,9 +63,7 @@ public class MainActivity extends AppCompatActivity {
                 if (user.getImageURL().equals("default")){
                     profile_image.setImageResource(R.mipmap.ic_launcher);
                 } else {
-
-                    //change this
-                    Glide.with(getApplicationContext()).load(user.getImageURL()).into(profile_image);
+                    profile_image.setImageResource(R.mipmap.ic_launcher);
                 }
             }
 
