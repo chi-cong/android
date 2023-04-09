@@ -69,7 +69,6 @@ public class ChatsFragment extends Fragment {
                         usersList.add(chat.getSender());
                     }
                 }
-
                 readChat();
             }
 
@@ -94,11 +93,14 @@ public class ChatsFragment extends Fragment {
                     for (String id : usersList){
                         if(user.getId().equals(id)){
                             if(mUsers.size() != 0){
-
+                                boolean existed = false;
                                 for(User userl : mUsers){
                                     if (user.getId().equals(userl.getId())){
-                                        mUsers.add(userl);
+                                        existed = true;
                                     }
+                                }
+                                if(!existed){
+                                    mUsers.add(user);
                                 }
                             } else{
                                 mUsers.add(user);
@@ -106,7 +108,10 @@ public class ChatsFragment extends Fragment {
                         }
                     }
                 }
-
+                for (User user:mUsers
+                     ) {
+                    Log.i("Chat ID", user.getId());
+                }
                 userAdapter = new UserAdapter(getContext(), mUsers);
                 recyclerView.setAdapter(userAdapter);
             }
